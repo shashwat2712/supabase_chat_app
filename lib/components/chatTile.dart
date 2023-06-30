@@ -17,11 +17,12 @@ class chatTile extends StatelessWidget {
     return ListTile(
       onTap: onTap ,
       leading: CircleAvatar(
-        child: ClipRRect(child: Image.asset('lib/assets/person-icon.png')),
+        radius: 20,
+        child: Icon(Icons.person),
       ),
       title: Text(text),
       subtitle: Text('Live life king Size'),
-      trailing: Icon(Icons.message),
+      trailing: Icon(Icons.message,),
     );
   }
 }

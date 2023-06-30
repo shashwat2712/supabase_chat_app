@@ -16,7 +16,39 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
+
+  @override
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void setStatus(String status)async{
+    if(superbase.auth.currentUser == null )return;
+    try{
+      await superbase.from('users').update(
+          {'status': status
+          }).eq('uid', superbase.auth.currentUser!.id);
+    }
+    catch(error){
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString())));
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state){
+    if(state == AppLifecycleState.resumed){
+      setStatus('online');
+
+    }
+    else{
+      setStatus('offline');
+    }
+
+  }
+
   List<Map<String,dynamic>> data = [];
 
   final _searchController = TextEditingController();
@@ -47,6 +79,13 @@ class _HomePageState extends State<HomePage> {
           leadingWidth: 100.0,
           backgroundColor: Colors.grey[300],
           elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.perm_identity_sharp,
+              size: 40,
+            ),
+            onPressed: () {  },
+
+          ),
           actions:  [
 
             Padding(
@@ -66,74 +105,153 @@ class _HomePageState extends State<HomePage> {
           ],
 
         ),
-        body: StreamBuilder(
-          stream: superbase.from('users').stream(primaryKey: ['uid']),
-          builder: ((context, snapshot){
-            if(snapshot.connectionState != ConnectionState.active){
-              return const Center(child: CircularProgressIndicator(),);
-            }
-            if(!snapshot.hasData || snapshot.hasError){
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please Try Again')));
-              return Container();
-            }
-            final messages = snapshot.data!;
-            return ListView.builder(
-              itemCount: messages.length,
-                itemBuilder: ((context,index){
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  decoration: BoxDecoration(color: Colors.pink[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //animation or picture
+                      Container(
+                        height: 125,
+                        width: 125,
+                        child: Lottie.network
+                          (
+                            'https://assets1.lottiefiles.com/packages/lf20_p9cnyffr.json',
+                            fit: BoxFit.cover,
+                            alignment: Alignment.centerLeft
+                        ),
+                      ),
+                      SizedBox(width: 20,),
 
-                  return chatTile(text: (messages[index]['name']),
-                      email: 'shashwat',
-                    onTap: () async {
-                      final user_uid = superbase.auth.currentUser!.id;
-                      String roomId = chatRoomId(user_uid.toString(),
-                          messages[index]['uid']);
+                      //What's next in the schedule
+                      Expanded(
+                        child: Column(
+
+                          children: [
+                            Text("Explore ",
+                              style: GoogleFonts.abel(
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20.0
+                                ),
+                              ),),
+                            SizedBox(height: 12,),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceEvenly,
+                              children: [
+                                MyBullets(text: "New", leading_icon: Icons.verified,),
+                                SizedBox(width: 20,),
+                                MyBullets(text: "Anonymous", leading_icon: Icons.verified,),
+
+                              ],
+                            ),
+                            SizedBox(height: 12,),
+                            Container(
+                              padding: EdgeInsets.all(12.0),
+                              decoration: BoxDecoration(
+                                  color: Colors.deepPurple[300],
+                                  borderRadius: BorderRadius.circular(12)
+                              ),
+                              child: Center(
+                                child: Text('Find People',
+                                    style: GoogleFonts.abel(
+                                      textStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    )),
+                              ),
+                            )
+                          ],
+                        ),
+                      )
 
 
-                      final currentUserName = await superbase
-                          .from('users')
-                          .select('name')
-                          .eq('uid', user_uid);
-                      print(currentUserName[0]);
-                      List<dynamic> list  = await superbase.from('chat_room').select('*')
-                          .eq('chatRoomId', roomId);
+                    ],)
+              ),
+            ),
+            SizedBox(height: 12,),
+
+            Expanded(
+              child: StreamBuilder(
+                stream: superbase.from('users').stream(primaryKey: ['uid']),
+                builder: ((context, snapshot){
+                  if(snapshot.connectionState != ConnectionState.active){
+                    return const Center(child: CircularProgressIndicator(),);
+                  }
+                  if(!snapshot.hasData || snapshot.hasError){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please Try Again')));
+                    return Container();
+                  }
+                  final messages = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: messages.length,
+                      itemBuilder: ((context,index){
+
+                        return chatTile(text: (messages[index]['name']),
+                            email: 'shashwat',
+                          onTap: () async {
+                            final user_uid = superbase.auth.currentUser!.id;
+                            String roomId = chatRoomId(user_uid.toString(),
+                                messages[index]['uid']);
 
 
-                      if(list.isEmpty){
-                        if(!mounted) return;
-                        try{
-                          await superbase.from('chat_room').insert({
-
-                            'chatRoomId': roomId,
-                            'user1': currentUserName[0]['name'].toString(),
-                            'user2': messages[index]['name'],
-                          });
-                      }catch(error){
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(error.toString())));
-                        }
-                    }
+                            final currentUserName = await superbase
+                                .from('users')
+                                .select('name')
+                                .eq('uid', user_uid);
+                            print(currentUserName[0]);
+                            List<dynamic> list  = await superbase.from('chat_room').select('*')
+                                .eq('chatRoomId', roomId);
 
 
+                            if(list.isEmpty){
+                              if(!mounted) return;
+                              try{
+                                await superbase.from('chat_room').insert({
+
+                                  'chatRoomId': roomId,
+                                  'user1': currentUserName[0]['name'].toString(),
+                                  'user2': messages[index]['name'],
+                                });
+                            }catch(error){
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(error.toString())));
+                              }
+                          }
 
 
-                      if(!mounted) return;
-
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context)=>  ChatRoom(
-                          receiverUserMap: messages[index], chatRoomId: roomId,
-                          currentUserName: currentUserName[0]['name'].toString(),
 
 
-                        ))
-                      );
+                            if(!mounted) return;
 
-                    },
+                            Navigator.push(context,
+                              MaterialPageRoute(builder: (context)=>  ChatRoom(
+                                receiverUserMap: messages[index], chatRoomId: roomId,
+                                currentUserName: currentUserName[0]['name'].toString(),
+
+
+                              ))
+                            );
+
+                          },
+                        );
+                      }),
                   );
-                }),
-            );
 
-        }),
+              }),
+              ),
+            ),
+          ],
         )
     );
   }

@@ -53,7 +53,41 @@ class _ChatRoomState extends State<ChatRoom> {
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
-        title: Text(widget.receiverUserMap['name']),
+        title: StreamBuilder(
+          stream: superbase.from('users').stream(primaryKey: ['uid']).eq('uid', widget.receiverUserMap['uid']),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+
+            if(snapshot.data != null){
+              final data = snapshot!.data;
+              return Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(data[0]['name'].toString(),
+                      style: TextStyle(
+
+                      ),
+                    ),
+                    Text(data[0]['status'].toString(),
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            else{
+              return Text(widget.receiverUserMap['name']);
+            }
+          },
+
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed:(){Navigator.pop(context);},
+        ),
+        backgroundColor: Colors.green,
 
       ),
       body: Center(
