@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supabase_flutter_application/search.dart';
+import 'package:supabase_flutter_application/home_page.dart';
 import 'package:supabase_flutter_application/main.dart';
 
 import 'components/MyButton.dart';

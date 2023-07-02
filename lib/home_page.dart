@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter_application/chatRoom_page.dart';
 import 'package:supabase_flutter_application/components/chatTile.dart';
+import 'package:supabase_flutter_application/profile_page.dart';
+import 'package:supabase_flutter_application/search.dart';
 
 import 'components/bullets.dart';
 import 'loginOrRegisterPage.dart';
@@ -32,15 +34,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
           }).eq('uid', superbase.auth.currentUser!.id);
     }
     catch(error){
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString())));
+      print(error);
     }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state){
-    if(state == AppLifecycleState.resumed){
-      setStatus('online');
+    if(state == AppLifecycleState.resumed  ){
 
     }
     else{
@@ -66,9 +66,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   Future<void> signUserOut() async {
     await superbase.auth.signOut();
     if(!mounted)return;
+    setStatus('offline');
     Navigator.pushAndRemoveUntil(context,
       MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()),
           (route) => false,);
+
   }
   @override
   Widget build(BuildContext context) {
@@ -83,7 +85,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
             icon: const Icon(Icons.perm_identity_sharp,
               size: 40,
             ),
-            onPressed: () {  },
+            onPressed: () async{
+              final map = await superbase.from('users').select('name').eq('uid', superbase.auth.currentUser!.id);
+
+              if(!mounted)return;
+              Navigator.push(context, 
+                MaterialPageRoute(builder: (context)=>ProfileScreen(name: map[0]['name'].toString(),))
+              );
+            },
 
           ),
           actions:  [
@@ -91,7 +100,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: IconButton(
-                icon: Icon(Icons.notification_add_outlined),
+                icon: const Icon(Icons.notification_add_outlined),
                 onPressed: (){},
               ),
             ),
@@ -110,7 +119,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   decoration: BoxDecoration(color: Colors.pink[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -128,7 +137,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
                             alignment: Alignment.centerLeft
                         ),
                       ),
-                      SizedBox(width: 20,),
+                      const SizedBox(width: 20,),
 
                       //What's next in the schedule
                       Expanded(
@@ -142,7 +151,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
                                     fontSize: 20.0
                                 ),
                               ),),
-                            SizedBox(height: 12,),
+                            const SizedBox(height: 12,),
                             const Row(
                               mainAxisAlignment: MainAxisAlignment
                                   .spaceEvenly,
@@ -153,21 +162,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
 
                               ],
                             ),
-                            SizedBox(height: 12,),
-                            Container(
-                              padding: EdgeInsets.all(12.0),
-                              decoration: BoxDecoration(
-                                  color: Colors.deepPurple[300],
-                                  borderRadius: BorderRadius.circular(12)
-                              ),
-                              child: Center(
-                                child: Text('Find People',
-                                    style: GoogleFonts.abel(
-                                      textStyle: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    )),
+                            const SizedBox(height: 12,),
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.push(context,
+                                MaterialPageRoute(builder: (context)=> SearchPage())
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(12.0),
+                                decoration: BoxDecoration(
+                                    color: Colors.deepPurple[300],
+                                    borderRadius: BorderRadius.circular(12)
+                                ),
+                                child: Center(
+                                  child: Text('Find People',
+                                      style: GoogleFonts.abel(
+                                        textStyle: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      )),
+                                ),
                               ),
                             )
                           ],
@@ -182,23 +198,81 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
 
             Expanded(
               child: StreamBuilder(
-                stream: superbase.from('users').stream(primaryKey: ['uid']),
+                stream: superbase.from('users').stream(primaryKey: ['uid']).order('name',ascending: true),
                 builder: ((context, snapshot){
-                  if(snapshot.connectionState != ConnectionState.active){
-                    return const Center(child: CircularProgressIndicator(),);
-                  }
                   if(!snapshot.hasData || snapshot.hasError){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please Try Again')));
-                    return Container();
+                    return Center(child: CircularProgressIndicator());
                   }
+                  if(snapshot.connectionState != ConnectionState.active){
+                    final messages = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: messages.length,
+                      itemBuilder: ((context,index){
+
+                        return chatTile(text: (messages[index]['name']),
+                          imageUrl: messages[index]['imageUrl'].toString(),
+                          status: messages[index]['caption'].toString(),
+                          onTap: () async {
+                            final user_uid = superbase.auth.currentUser!.id;
+                            String roomId = chatRoomId(user_uid.toString(),
+                                messages[index]['uid']);
+
+
+                            final currentUserName = await superbase
+                                .from('users')
+                                .select('name')
+                                .eq('uid', user_uid);
+                            print(currentUserName[0]);
+                            List<dynamic> list  = await superbase.from('chat_room').select('*')
+                                .eq('chatRoomId', roomId);
+
+
+                            if(list.isEmpty){
+                              if(!mounted) return;
+                              try{
+                                await superbase.from('chat_room').insert({
+
+                                  'chatRoomId': roomId,
+                                  'user1': currentUserName[0]['name'].toString(),
+                                  'user2': messages[index]['name'],
+                                });
+                              }catch(error){
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(error.toString())));
+                              }
+                            }
+
+
+
+
+                            if(!mounted) return;
+
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context)=>  ChatRoom(
+                                  receiverUserMap: messages[index], chatRoomId: roomId,
+                                  currentUserName: currentUserName[0]['name'].toString(),
+
+
+                                ))
+                            );
+
+                          },
+                        );
+                      }),
+                    );
+                    setState(() {
+
+                    });
+                  }
+
                   final messages = snapshot.data!;
                   return ListView.builder(
                     itemCount: messages.length,
                       itemBuilder: ((context,index){
 
                         return chatTile(text: (messages[index]['name']),
-                            email: 'shashwat',
+                            imageUrl: messages[index]['imageUrl'].toString(),
+                          status: messages[index]['caption'].toString(),
                           onTap: () async {
                             final user_uid = superbase.auth.currentUser!.id;
                             String roomId = chatRoomId(user_uid.toString(),

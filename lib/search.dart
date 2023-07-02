@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter_application/components/squareTile.dart';
 
+import 'chatRoom_page.dart';
+import 'components/chatTile.dart';
 import 'loginOrRegisterPage.dart';
 import 'main.dart';
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class SearchPage extends StatefulWidget {
+  const SearchPage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _SearchPageState extends State<SearchPage> {
   List<Map<String,dynamic>> data = [];
 
   final _searchController = TextEditingController();
 
   void onSearch()async{
+    setState(() {
+      _searchController.text;
+    });
 
 
 
@@ -27,6 +33,14 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushAndRemoveUntil(context,
       MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()),
           (route) => false,);
+  }
+  String chatRoomId(String user1, String user2){
+    if(user1[0].toLowerCase().codeUnits[0]>user2[0].toLowerCase().codeUnits[0]){
+      return "$user1$user2";
+    }
+    else{
+      return '$user2$user1';
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -59,34 +73,187 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           SizedBox(
-            height: size.height/20,
+            height: size.height/30,
           ),
           Container(
             height: size.height/14,
-            width: size.width,
+            width: size.width/0.9,
             alignment: Alignment.center,
             child: Container(
               height: size.height/14,
-              width: size.width/1.2,
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.search),
-                  hintText: 'Search',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+              width: size.width/1.095,
+              decoration: BoxDecoration(
+                color: Colors.green,
+                border: Border.all(color: Colors.black38),
+                borderRadius: BorderRadius.circular(10),
 
-                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        fillColor: Colors.grey[300],
+                        filled: true,
+                        prefixIcon: Icon(Icons.search),
+
+
+                        hintText: 'Search',
+                        border: OutlineInputBorder(
+
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+
+                      ),
+                    ),
+                  ),
+                  Container(
+                    child: IconButton(
+                      onPressed: onSearch,
+                      icon: const Icon(Icons.send_sharp),
+                    ),
+
+                  )
+                ],
               ),
             ),
           ),
          SizedBox(
            height: size.width/30,
          ),
-         ElevatedButton(onPressed: (){},
-             child: const Text('Search')
-         )
+
+          Expanded(
+            child: StreamBuilder(
+              stream: _searchController.text.isEmpty ? superbase.from('users').stream(primaryKey: ['uid']).order('name',ascending: true) : superbase.from('users').stream(primaryKey: ['uid']).order('name',ascending: true)
+                  .eq('name', _searchController.text.toString())
+
+
+              ,
+
+              builder: ((context, snapshot){
+                if(!snapshot.hasData || snapshot.hasError){
+                  return Center(child: CircularProgressIndicator());
+                }
+                if(snapshot.connectionState != ConnectionState.active){
+                  final messages = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: messages.length,
+                    itemBuilder: ((context,index){
+
+                      return chatTile(text: (messages[index]['name']),
+                        imageUrl: messages[index]['imageUrl'].toString(),
+                        status: messages[index]['caption'].toString(),
+                        onTap: () async {
+                          final user_uid = superbase.auth.currentUser!.id;
+                          String roomId = chatRoomId(user_uid.toString(),
+                              messages[index]['uid']);
+
+
+                          final currentUserName = await superbase
+                              .from('users')
+                              .select('name')
+                              .eq('uid', user_uid);
+                          print(currentUserName[0]);
+                          List<dynamic> list  = await superbase.from('chat_room').select('*')
+                              .eq('chatRoomId', roomId);
+
+
+                          if(list.isEmpty){
+                            if(!mounted) return;
+                            try{
+                              await superbase.from('chat_room').insert({
+
+                                'chatRoomId': roomId,
+                                'user1': currentUserName[0]['name'].toString(),
+                                'user2': messages[index]['name'],
+                              });
+                            }catch(error){
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(error.toString())));
+                            }
+                          }
+
+
+
+
+                          if(!mounted) return;
+
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context)=>  ChatRoom(
+                                receiverUserMap: messages[index], chatRoomId: roomId,
+                                currentUserName: currentUserName[0]['name'].toString(),
+
+
+                              ))
+                          );
+
+                        },
+                      );
+                    }),
+                  );
+                }
+
+                final messages = snapshot.data!;
+                return ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: ((context,index){
+
+                    return chatTile(text: (messages[index]['name']),
+                      imageUrl: messages[index]['imageUrl'].toString(),
+                      status: messages[index]['caption'].toString(),
+                      onTap: () async {
+                        final user_uid = superbase.auth.currentUser!.id;
+                        String roomId = chatRoomId(user_uid.toString(),
+                            messages[index]['uid']);
+
+
+                        final currentUserName = await superbase
+                            .from('users')
+                            .select('name')
+                            .eq('uid', user_uid);
+                        print(currentUserName[0]);
+                        List<dynamic> list  = await superbase.from('chat_room').select('*')
+                            .eq('chatRoomId', roomId);
+
+
+                        if(list.isEmpty){
+                          if(!mounted) return;
+                          try{
+                            await superbase.from('chat_room').insert({
+
+                              'chatRoomId': roomId,
+                              'user1': currentUserName[0]['name'].toString(),
+                              'user2': messages[index]['name'],
+                            });
+                          }catch(error){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(error.toString())));
+                          }
+                        }
+
+
+
+
+                        if(!mounted) return;
+
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context)=>  ChatRoom(
+                              receiverUserMap: messages[index], chatRoomId: roomId,
+                              currentUserName: currentUserName[0]['name'].toString(),
+
+
+                            ))
+                        );
+
+                      },
+                    );
+                  }),
+                );
+
+              }),
+            ),
+          )
         ],
       )
     );

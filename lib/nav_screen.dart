@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter_application/search.dart';
+import 'package:supabase_flutter_application/home_page.dart';
 import 'package:supabase_flutter_application/loginOrRegisterPage.dart';
 import 'package:supabase_flutter_application/main.dart';
 import 'package:supabase_flutter_application/profile_page.dart';
@@ -28,8 +28,8 @@ class _NavScreenState extends State<NavScreen> {
 
   final _screens = [
     const HomePage(),
-    const ProfileScreen(),
-    const ProfileScreen(),
+    const ProfileScreen(name: 'Name',),
+    const ProfileScreen(name: '',),
 
   ];
   @override

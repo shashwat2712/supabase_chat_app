@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter_application/components/image_chat.dart';
 import 'package:supabase_flutter_application/components/message_tile.dart';
 import 'package:supabase_flutter_application/main.dart';
+import 'package:supabase_flutter_application/upload_message_image.dart';
 
 class ChatRoom extends StatefulWidget {
   final Map<String,dynamic> receiverUserMap;
@@ -43,6 +45,10 @@ class _ChatRoomState extends State<ChatRoom> {
       ScaffoldMessenger.of(context).showSnackBar(
            SnackBar(content: Text(error.toString())));
     }
+  }
+
+  void onSendImage(String url)async{
+      Navigator.push(context, MaterialPageRoute(builder: (context)=> CameraPage(chatRoomID: widget.chatRoomId,)));
   }
 
   final _message = TextEditingController();
@@ -107,9 +113,19 @@ class _ChatRoomState extends State<ChatRoom> {
 
                           // return Text(messages[index]['messages'].toString());
                           if(superbase.auth.currentUser != null){
-                            return MessageTile(message: messages[index]['messages'].toString(),
-                            sender: 'status',
-                            sendByMe: messages[index]['created_by'] == superbase.auth.currentUser!.id);
+                            return messages[index]['type'].toString() == 'text' ?
+
+
+                            MessageTile(message: messages[index]['messages'].toString(),
+                            sender: messages[index]['created_by'] == superbase.auth.currentUser!.id ? widget.currentUserName :
+                                widget.receiverUserMap['name'],
+                            sendByMe: messages[index]['created_by'] == superbase.auth.currentUser!.id)
+
+
+
+                            :ImageMessage(url: messages[index]['image_url'], sendByMe: messages[index]['created_by'] == superbase.auth.currentUser!.id,
+                                sender: messages[index]['created_by'] == superbase.auth.currentUser!.id ? widget.currentUserName:
+                                widget.receiverUserMap['name'] );
                           }
                           else{
                             return Container();
@@ -162,7 +178,9 @@ class _ChatRoomState extends State<ChatRoom> {
                           ),
                         ),
                         IconButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              onSendImage(_message.text.trim());
+                            },
                             icon: const Icon(Icons.camera_alt)),
                         IconButton(
                             onPressed: (){
@@ -175,7 +193,7 @@ class _ChatRoomState extends State<ChatRoom> {
                       ],
                     ),
                   ),
-                  SizedBox(width: 3,),
+                  const SizedBox(width: 3,),
                   CircleAvatar(
                     backgroundColor: Colors.green,
                     radius: size.height/27,

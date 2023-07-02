@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter_application/components/about_me_page.dart';
+import 'package:supabase_flutter_application/view_and_edit_profile.dart';
 
 import 'components/myListTile.dart';
 import 'loginOrRegisterPage.dart';
+import 'main.dart';
 
 
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  final String name;
+  const ProfileScreen({Key? key, required this.name}) : super(key: key);
 
 
   @override
@@ -16,8 +20,27 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  void setStatus(String status)async{
+    if(superbase.auth.currentUser == null )return;
+    try{
+      await superbase.from('users').update(
+          {'status': status
+          }).eq('uid', superbase.auth.currentUser!.id);
+    }
+    catch(error){
+      print(error);
+    }
+  }
 
+  Future<void> signUserOut() async {
+    await superbase.auth.signOut();
+    if(!mounted)return;
+    setStatus('offline');
+    Navigator.pushAndRemoveUntil(context,
+      MaterialPageRoute(builder: (context) => const LoginOrRegisterPage()),
+          (route) => false,);
 
+  }
 
 
 
@@ -50,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
 
                 Text(
-                    'Shashwat Sai Vyas',
+                    widget.name,
                     style: GoogleFonts.oswald(
                         textStyle: const TextStyle(
                           fontSize: 20.0,
@@ -62,6 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>EditProfile()));
 
                   },
                   child: Container(
@@ -73,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child:   Center(
                       child: Text(
-                        'View Profile',
+                        'Edit Profile',
                         style: GoogleFonts.oswald(
                           textStyle: const TextStyle(
                             fontSize: 20,
@@ -94,29 +118,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   text: 'Setting',
 
                 ),
-                const MyListTile(
+                 MyListTile(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MyProfile()));
+                  },
                   icon: Icons.schedule,
                   text: 'Schedule',
 
                 ),
-                const MyListTile(
-                  icon: Icons.message,
-                  text: 'Inbox',
+                 MyListTile(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MyProfile()));
+                  },
+                  icon: Icons.recent_actors_rounded,
+                  text: 'Logs',
 
                 ),
-                const MyListTile(
-                  icon: Icons.note_add,
-                  text: 'To-DO',
 
-                ),
                 MyListTile(
-                  onTap: (){},
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MyProfile()));
+                  },
                   icon: Icons.info,
                   text: 'About Us',
 
                 ),
                 MyListTile(
-                  onTap: (){},
+                  onTap: signUserOut,
                   icon: Icons.logout,
                   text: 'Log Out',
                 ),

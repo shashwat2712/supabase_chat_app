@@ -39,6 +39,8 @@ dependencies:
   google_fonts: ^4.0.4
   pinput: ^2.2.31
   lottie: ^2.4.0
+  image_picker: ^1.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,13 @@ flutter:
      - lib/assets/google.png
      - lib/assets/teacher.jpg
      - lib/assets/person-icon.png
+     - lib/assets/camera.png
+     - lib/assets/image-gallery.png
+     - lib/assets/linkedin.png
+     - lib/assets/instagram.png
+     - lib/assets/github.png
+     - lib/assets/shashwatsai.jpg
+     - lib/assets/background.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

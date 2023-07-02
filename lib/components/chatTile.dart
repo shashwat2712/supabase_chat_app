@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 class chatTile extends StatelessWidget {
   final String text;
-  final String email;
+  final String imageUrl;
   final Function()? onTap;
+  final String status;
 
   const chatTile({Key? key,
     required this.text,
-    required this.email,
-    this.onTap
+    required this.imageUrl,
+    this.onTap, required this.status
   }) : super(key: key);
 
   @override
@@ -18,10 +19,10 @@ class chatTile extends StatelessWidget {
       onTap: onTap ,
       leading: CircleAvatar(
         radius: 20,
-        child: Icon(Icons.person),
+        child: Icon(Icons.person)
       ),
       title: Text(text),
-      subtitle: Text('Live life king Size'),
+      subtitle: Text(status),
       trailing: Icon(Icons.message,),
     );
   }
