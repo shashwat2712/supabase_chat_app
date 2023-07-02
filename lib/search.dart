@@ -142,7 +142,7 @@ class _SearchPageState extends State<SearchPage> {
                     itemBuilder: ((context,index){
 
                       return chatTile(text: (messages[index]['name']),
-                        imageUrl: messages[index]['imageUrl'].toString(),
+                        imageUrl: messages[index]['profile_photo_url'].toString(),
                         status: messages[index]['caption'].toString(),
                         onTap: () async {
                           final user_uid = superbase.auth.currentUser!.id;
@@ -200,7 +200,7 @@ class _SearchPageState extends State<SearchPage> {
                   itemBuilder: ((context,index){
 
                     return chatTile(text: (messages[index]['name']),
-                      imageUrl: messages[index]['imageUrl'].toString(),
+                      imageUrl: messages[index]['profile_photo_url'].toString(),
                       status: messages[index]['caption'].toString(),
                       onTap: () async {
                         final user_uid = superbase.auth.currentUser!.id;

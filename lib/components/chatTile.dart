@@ -14,12 +14,16 @@ class chatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(imageUrl);
     final size = MediaQuery.of(context).size;
     return ListTile(
       onTap: onTap ,
-      leading: CircleAvatar(
-        radius: 20,
-        child: Icon(Icons.person)
+      leading: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+        child: CircleAvatar(
+          radius: 20,
+          child: Image.network(imageUrl)
+        ),
       ),
       title: Text(text),
       subtitle: Text(status),
