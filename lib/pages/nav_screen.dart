@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter_application/home_page.dart';
-import 'package:supabase_flutter_application/loginOrRegisterPage.dart';
+import 'package:supabase_flutter_application/pages/home_page.dart';
+import 'package:supabase_flutter_application/pages/loginOrRegisterPage.dart';
 import 'package:supabase_flutter_application/main.dart';
-import 'package:supabase_flutter_application/profile_page.dart';
+import 'package:supabase_flutter_application/pages/profile_page.dart';
 
 import 'login_page.dart';
 

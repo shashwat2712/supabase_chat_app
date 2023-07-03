@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter_application/components/about_me_page.dart';
-import 'package:supabase_flutter_application/view_and_edit_profile.dart';
+import 'package:supabase_flutter_application/pages/view_and_edit_profile.dart';
 
-import 'components/myListTile.dart';
+import '../components/myListTile.dart';
 import 'loginOrRegisterPage.dart';
-import 'main.dart';
+import '../main.dart';
 
 
 

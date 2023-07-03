@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter_application/components/image_chat.dart';
 import 'package:supabase_flutter_application/components/message_tile.dart';
 import 'package:supabase_flutter_application/main.dart';
-import 'package:supabase_flutter_application/upload_message_image.dart';
+import 'package:supabase_flutter_application/pages/upload_message_image.dart';
 
 class ChatRoom extends StatefulWidget {
   final Map<String,dynamic> receiverUserMap;

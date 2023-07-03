@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter_application/home_page.dart';
-import 'package:supabase_flutter_application/loginOrRegisterPage.dart';
+import 'package:supabase_flutter_application/pages/home_page.dart';
+import 'package:supabase_flutter_application/pages/loginOrRegisterPage.dart';
 import 'package:supabase_flutter_application/main.dart';
-import 'package:supabase_flutter_application/nav_screen.dart';
+import 'package:supabase_flutter_application/pages/nav_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supabase_flutter_application/search.dart';
-import 'package:supabase_flutter_application/loginOrRegisterPage.dart';
-import 'package:supabase_flutter_application/register_page.dart';
-import 'package:supabase_flutter_application/splash_screen.dart';
+import 'package:supabase_flutter_application/pages/search.dart';
+import 'package:supabase_flutter_application/pages/loginOrRegisterPage.dart';
+import 'package:supabase_flutter_application/pages/register_page.dart';
+import 'package:supabase_flutter_application/pages/splash_screen.dart';
 
 
 void main() async {

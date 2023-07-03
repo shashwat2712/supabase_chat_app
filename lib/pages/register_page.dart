@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supabase_flutter_application/home_page.dart';
+import 'package:supabase_flutter_application/pages/home_page.dart';
 
-import 'components/MyButton.dart';
-import 'components/my_textfield.dart';
-import 'components/squareTile.dart';
-import 'main.dart';
+import '../components/MyButton.dart';
+import '../components/my_textfield.dart';
+import '../components/squareTile.dart';
+import '../main.dart';
 import 'otp_verification.dart';
 
 

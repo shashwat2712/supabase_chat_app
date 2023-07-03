@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter_application/components/squareTile.dart';
 
 import 'chatRoom_page.dart';
-import 'components/chatTile.dart';
+import '../components/chatTile.dart';
 import 'loginOrRegisterPage.dart';
-import 'main.dart';
+import '../main.dart';
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
 
@@ -72,8 +72,15 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.verified_rounded),
+              Text('Please enter the full name'),
+            ],
+          ),
           SizedBox(
-            height: size.height/30,
+            height: size.height/60,
           ),
           Container(
             height: size.height/14,
@@ -99,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
                         prefixIcon: Icon(Icons.search),
 
 
-                        hintText: 'Search',
+                        hintText: 'Search Users',
                         border: OutlineInputBorder(
 
                           borderRadius: BorderRadius.circular(10),

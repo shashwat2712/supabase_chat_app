@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:supabase_flutter_application/chatRoom_page.dart';
+import 'package:supabase_flutter_application/pages/chatRoom_page.dart';
 import 'package:supabase_flutter_application/components/chatTile.dart';
-import 'package:supabase_flutter_application/profile_page.dart';
-import 'package:supabase_flutter_application/search.dart';
+import 'package:supabase_flutter_application/pages/profile_page.dart';
+import 'package:supabase_flutter_application/pages/search.dart';
 
-import 'components/bullets.dart';
+import '../components/bullets.dart';
 import 'loginOrRegisterPage.dart';
-import 'main.dart';
+import '../main.dart';
 
 
 class HomePage extends StatefulWidget {
